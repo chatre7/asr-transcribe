@@ -80,7 +80,10 @@ class TyphoonASR:
             # Format results to match Pathumma format
             result_segments = []
 
-            text = (result.get("text") or "").strip()
+            raw_text = result.get("text") or ""
+            if isinstance(raw_text, list):
+                raw_text = " ".join([str(item) for item in raw_text if item is not None])
+            text = str(raw_text).strip()
             audio_duration = float(result.get("audio_duration", 0) or 0)
 
             # Create a single segment; approximate word timestamps if text is available.

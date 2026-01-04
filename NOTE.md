@@ -245,7 +245,7 @@ curl -X POST http://localhost:8000/api/v1/transcribe \
 ## Model Information
 
 ### Pathumma Whisper
-- Model ID: `s2p2/Pathumma-whisper-th-large-v3-ct2`
+- Model ID: `nectec/Pathumma-whisper-th-large-v3`
 - ใช้ faster-whisper library
 - รองรับ word-level timestamps
 

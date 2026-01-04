@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     huggingfacehub_api_token: str = ""
 
     # Model IDs
-    pathumma_model_id: str = "s2p2/Pathumma-whisper-th-large-v3-ct2"
+    pathumma_model_id: str = "nectec/Pathumma-whisper-th-large-v3"
 
     # Audio processing
     sample_rate: int = 16000

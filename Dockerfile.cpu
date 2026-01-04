@@ -26,16 +26,18 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 # Increase uv download timeout for large wheels
 ENV UV_HTTP_TIMEOUT=300
 
-# Copy project files
-COPY pyproject.toml ./
-COPY README.md ./
-COPY app/ ./app/
+# Copy dependency definitions first for better layer caching
+COPY requirements.txt ./
 
 # Install av from pre-built wheel to avoid compilation issues
 RUN uv pip install --system --no-cache av>=12.0.0
 
 # Install dependencies using uv
-RUN uv pip install --system --no-cache -e .
+RUN uv pip install --system --no-cache -r requirements.txt
+
+# Copy project files
+COPY README.md ./
+COPY app/ ./app/
 
 # Create necessary directories
 RUN mkdir -p temp logs

@@ -153,7 +153,7 @@ HF_HOME=/root/.cache/huggingface
 HF_LOCAL_FILES_ONLY=false
 HF_HUB_OFFLINE=false
 TRANSFORMERS_OFFLINE=false
-PATHUMMA_MODEL_ID=s2p2/Pathumma-whisper-th-large-v3-ct2
+PATHUMMA_MODEL_ID=nectec/Pathumma-whisper-th-large-v3
 ```
 
 ## Project Structure
@@ -247,13 +247,14 @@ TRANSFORMERS_OFFLINE=true
 
 ถ้า model อยู่ local หรือชื่อ repo เปลี่ยน ให้ตั้ง:
 ```bash
-PATHUMMA_MODEL_ID=s2p2/Pathumma-whisper-th-large-v3-ct2
+PATHUMMA_MODEL_ID=nectec/Pathumma-whisper-th-large-v3
 ```
 
 ลอง download manual:
 ```python
-from faster_whisper import WhisperModel
-model = WhisperModel("s2p2/Pathumma-whisper-th-large-v3-ct2")
+from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor
+model = AutoModelForSpeechSeq2Seq.from_pretrained("nectec/Pathumma-whisper-th-large-v3")
+processor = AutoProcessor.from_pretrained("nectec/Pathumma-whisper-th-large-v3")
 ```
 
 ### GPU ไม่ทำงาน
@@ -266,9 +267,9 @@ docker run --rm --gpus all nvidia/cuda:11.8.0-base-ubuntu22.04 nvidia-smi
 ### Out of Memory
 
 ลด model size หรือเพิ่ม RAM/VRAM  
-ปรับ compute_type ใน pathumma_service.py:
+ปรับให้ใช้ dtype ที่เบากว่าใน pathumma_service.py:
 ```python
-self.model = WhisperModel(model_name, compute_type="int8")  # ใช้ memory น้อยกว่า
+torch_dtype = torch.float16  # ใช้ memory น้อยกว่า (เมื่อมี GPU)
 ```
 
 ## Performance
@@ -286,7 +287,7 @@ self.model = WhisperModel(model_name, compute_type="int8")  # ใช้ memory �
 ## Model Information
 
 ### Pathumma-Whisper-TH-Large-V3
-- Model: `s2p2/Pathumma-whisper-th-large-v3-ct2`
+- Model: `nectec/Pathumma-whisper-th-large-v3`
 - Source: Hugging Face
 - Language: Thai
 - Features: Word timestamps, confidence scores

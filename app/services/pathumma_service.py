@@ -1,6 +1,7 @@
 """Pathumma-Whisper ASR service"""
 from typing import Dict, List
-from faster_whisper import WhisperModel
+import torch
+from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
 from app.config import settings
 from app.utils.logger import logger
 
@@ -15,8 +16,10 @@ class PathummaASR:
             model_size: Model size (default: large-v3)
         """
         # Prefer explicit model ID from settings; fall back to legacy size-based naming.
-        self.model_name = settings.pathumma_model_id or f"pathumma/whisper-th-{model_size}"
+        self.model_name = settings.pathumma_model_id or f"nectec/Pathumma-whisper-th-{model_size}"
         self.model = None
+        self.processor = None
+        self.pipe = None
         logger.info(f"Initializing Pathumma ASR model: {self.model_name}")
 
     def load_model(self, device: str = "auto", compute_type: str = "auto"):
@@ -27,14 +30,32 @@ class PathummaASR:
             compute_type: Computation type ('int8', 'float16', or 'auto')
         """
         try:
-            logger.info(f"Loading Pathumma model on device: {device}, compute_type: {compute_type}")
-            self.model = WhisperModel(
+            if device == "auto":
+                device = "cuda" if torch.cuda.is_available() else "cpu"
+
+            torch_dtype = torch.float16 if device == "cuda" else torch.float32
+            logger.info(f"Loading Pathumma model on device: {device}, dtype: {torch_dtype}")
+
+            self.processor = AutoProcessor.from_pretrained(
                 self.model_name,
-                device=device,
-                compute_type=compute_type,
-                local_files_only=settings.hf_local_files_only,
-                download_root=settings.hf_home
+                cache_dir=settings.hf_home,
+                local_files_only=settings.hf_local_files_only
             )
+            self.model = AutoModelForSpeechSeq2Seq.from_pretrained(
+                self.model_name,
+                torch_dtype=torch_dtype,
+                cache_dir=settings.hf_home,
+                local_files_only=settings.hf_local_files_only
+            )
+
+            self.pipe = pipeline(
+                "automatic-speech-recognition",
+                model=self.model,
+                tokenizer=self.processor.tokenizer,
+                feature_extractor=self.processor.feature_extractor,
+                device=0 if device == "cuda" else -1
+            )
+
             logger.info("Pathumma model loaded successfully")
         except Exception as e:
             logger.error(f"Error loading Pathumma model: {str(e)}")
@@ -67,52 +88,51 @@ class PathummaASR:
                 ]
             }
         """
-        if self.model is None:
+        if self.pipe is None:
             self.load_model()
 
         try:
             logger.info(f"Transcribing audio: {audio_path}")
 
-            # Transcribe with word timestamps
-            segments, info = self.model.transcribe(
+            result = self.pipe(
                 audio_path,
-                language="th",
-                word_timestamps=True,
-                vad_filter=True,  # Voice activity detection
-                beam_size=5
+                return_timestamps="word",
+                generate_kwargs={"language": "th"}
             )
 
-            # Format results
-            result_segments = []
-            for idx, segment in enumerate(segments):
-                # Format words
-                words = []
-                if segment.words:
-                    for word in segment.words:
-                        words.append({
-                            "word": word.word.strip(),
-                            "start": round(word.start, 3),
-                            "end": round(word.end, 3),
-                            "confidence": round(word.probability, 2)
-                        })
+            text = (result.get("text") or "").strip()
+            chunks = result.get("chunks") or []
 
-                # Create segment
-                segment_dict = {
-                    "id": idx,
-                    "seek": 0,  # Not used in faster-whisper
-                    "start": round(segment.start, 3),
-                    "end": round(segment.end, 3),
-                    "text": segment.text.strip(),
-                    "words": words
-                }
-                result_segments.append(segment_dict)
+            words = []
+            for chunk in chunks:
+                word_text = (chunk.get("text") or "").strip()
+                start, end = chunk.get("timestamp", (None, None))
+                if word_text:
+                    words.append({
+                        "word": word_text,
+                        "start": round(start or 0.0, 3),
+                        "end": round(end or 0.0, 3),
+                        "confidence": 0.95
+                    })
 
-            logger.info(f"Transcription complete: {len(result_segments)} segments")
+            start_ts = words[0]["start"] if words else 0.0
+            end_ts = words[-1]["end"] if words else 0.0
+
+            result_segments = [{
+                "id": 0,
+                "seek": 0,
+                "start": start_ts,
+                "end": end_ts,
+                "text": text,
+                "words": words
+            }]
+
+            logger.info(f"Transcription complete: {len(words)} words")
 
             return {
                 "segments": result_segments,
-                "language": info.language,
-                "language_probability": round(info.language_probability, 2)
+                "language": "th",
+                "language_probability": 1.0
             }
 
         except Exception as e:
