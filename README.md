@@ -153,7 +153,7 @@ HF_HOME=/root/.cache/huggingface
 HF_LOCAL_FILES_ONLY=false
 HF_HUB_OFFLINE=false
 TRANSFORMERS_OFFLINE=false
-PATHUMMA_MODEL_ID=pathumma/whisper-th-large-v3
+PATHUMMA_MODEL_ID=s2p2/Pathumma-whisper-th-large-v3-ct2
 ```
 
 ## Project Structure
@@ -247,13 +247,13 @@ TRANSFORMERS_OFFLINE=true
 
 ถ้า model อยู่ local หรือชื่อ repo เปลี่ยน ให้ตั้ง:
 ```bash
-PATHUMMA_MODEL_ID=pathumma/whisper-th-large-v3
+PATHUMMA_MODEL_ID=s2p2/Pathumma-whisper-th-large-v3-ct2
 ```
 
 ลอง download manual:
 ```python
 from faster_whisper import WhisperModel
-model = WhisperModel("pathumma/whisper-th-large-v3")
+model = WhisperModel("s2p2/Pathumma-whisper-th-large-v3-ct2")
 ```
 
 ### GPU ไม่ทำงาน
@@ -286,7 +286,7 @@ self.model = WhisperModel(model_name, compute_type="int8")  # ใช้ memory �
 ## Model Information
 
 ### Pathumma-Whisper-TH-Large-V3
-- Model: `pathumma/whisper-th-large-v3`
+- Model: `s2p2/Pathumma-whisper-th-large-v3-ct2`
 - Source: Hugging Face
 - Language: Thai
 - Features: Word timestamps, confidence scores

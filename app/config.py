@@ -29,9 +29,10 @@ class Settings(BaseSettings):
     hf_local_files_only: bool = False
     hf_hub_offline: bool = False
     transformers_offline: bool = False
+    huggingfacehub_api_token: str = ""
 
     # Model IDs
-    pathumma_model_id: str = "pathumma/whisper-th-large-v3"
+    pathumma_model_id: str = "s2p2/Pathumma-whisper-th-large-v3-ct2"
 
     # Audio processing
     sample_rate: int = 16000
@@ -48,3 +49,9 @@ class Settings(BaseSettings):
 
 # Global settings instance
 settings = Settings()
+
+# Ensure Hugging Face envs are set before any model download attempts.
+os.environ["HF_HUB_OFFLINE"] = "1" if settings.hf_hub_offline else "0"
+os.environ["TRANSFORMERS_OFFLINE"] = "1" if settings.transformers_offline else "0"
+if settings.huggingfacehub_api_token:
+    os.environ["HUGGINGFACEHUB_API_TOKEN"] = settings.huggingfacehub_api_token

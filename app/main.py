@@ -48,6 +48,8 @@ async def startup_event():
     """Application startup event"""
     os.environ["HF_HUB_OFFLINE"] = "1" if settings.hf_hub_offline else "0"
     os.environ["TRANSFORMERS_OFFLINE"] = "1" if settings.transformers_offline else "0"
+    if settings.huggingfacehub_api_token:
+        os.environ["HUGGINGFACEHUB_API_TOKEN"] = settings.huggingfacehub_api_token
     logger.info("Starting ASR Transcription API")
     logger.info(f"Supported models: {settings.supported_models}")
     logger.info(f"Default model: {settings.default_model}")

@@ -73,46 +73,40 @@ class TyphoonASR:
             device = "cuda" if torch.cuda.is_available() else "cpu"
             result = typhoon_transcribe(
                 audio_path,
-                with_timestamps=True,
+                with_timestamps=False,
                 device=device
             )
 
             # Format results to match Pathumma format
             result_segments = []
 
-            # typhoon-asr returns: {'text': str, 'timestamps': [{'word': str, 'start': float, 'end': float}], ...}
-            if "timestamps" in result and result["timestamps"]:
-                # Group words into segments (create one segment with all words)
-                formatted_segment = {
-                    "id": 0,
-                    "seek": 0,
-                    "start": result["timestamps"][0].get("start", 0) if result["timestamps"] else 0,
-                    "end": result["timestamps"][-1].get("end", 0) if result["timestamps"] else result.get("audio_duration", 0),
-                    "text": result.get("text", ""),
-                    "words": []
-                }
+            text = (result.get("text") or "").strip()
+            audio_duration = float(result.get("audio_duration", 0) or 0)
 
-                # Add words with timestamps
-                for word_info in result["timestamps"]:
-                    formatted_segment["words"].append({
-                        "word": word_info.get("word", ""),
-                        "start": word_info.get("start", 0),
-                        "end": word_info.get("end", 0),
-                        "confidence": 0.95  # typhoon-asr doesn't provide confidence
-                    })
-
-                result_segments.append(formatted_segment)
-
+            # Create a single segment; approximate word timestamps if text is available.
+            words = []
+            if text:
+                raw_words = text.split()
+                if raw_words and audio_duration > 0:
+                    avg_duration = audio_duration / len(raw_words)
+                    for idx, word in enumerate(raw_words):
+                        words.append({
+                            "word": word,
+                            "start": round(idx * avg_duration, 3),
+                            "end": round((idx + 1) * avg_duration, 3),
+                            "confidence": 0.95
+                        })
             else:
-                # Fallback: create single segment from text only
-                result_segments.append({
-                    "id": 0,
-                    "seek": 0,
-                    "start": 0,
-                    "end": result.get("audio_duration", 0),
-                    "text": result.get("text", ""),
-                    "words": []
-                })
+                logger.warning("Typhoon ASR returned empty text")
+
+            result_segments.append({
+                "id": 0,
+                "seek": 0,
+                "start": 0,
+                "end": audio_duration,
+                "text": text,
+                "words": words
+            })
 
             logger.info(f"Transcription complete: {len(result_segments)} segments, {len(result_segments[0]['words']) if result_segments else 0} words")
 
