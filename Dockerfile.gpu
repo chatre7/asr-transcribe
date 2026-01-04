@@ -1,0 +1,47 @@
+FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04
+
+WORKDIR /app
+
+# Install Python 3.10 and system dependencies
+RUN apt-get update && apt-get install -y \
+    python3.10 \
+    python3-pip \
+    build-essential \
+    gcc \
+    g++ \
+    ffmpeg \
+    libsndfile1 \
+    curl \
+    pkg-config \
+    libavcodec-dev \
+    libavformat-dev \
+    libavutil-dev \
+    libavdevice-dev \
+    libavfilter-dev \
+    libswscale-dev \
+    libswresample-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+# Copy project files
+COPY pyproject.toml ./
+COPY README.md ./
+COPY app/ ./app/
+
+# Install av from pre-built wheel to avoid compilation issues
+RUN uv pip install --system --no-cache av>=12.0.0
+
+# Install dependencies using uv with CUDA support
+# Note: faster-whisper 1.1.0 is compatible with av>=12.0.0
+RUN uv pip install --system --no-cache --extra-index-url https://download.pytorch.org/whl/cu118 -e .
+
+# Create necessary directories
+RUN mkdir -p temp logs
+
+# Expose port
+EXPOSE 8000
+
+# Run the application
+CMD ["python3", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

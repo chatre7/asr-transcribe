@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+
+# Documentation (exclude all except README.md which is needed for pyproject.toml)
+# README.md is required by hatchling build backend
+*.md
+!README.md
+
+# Environment
+.env
+
+# Project specific
+temp/
+logs/
+tests/
+
+# OS
+.DS_Store
+Thumbs.db

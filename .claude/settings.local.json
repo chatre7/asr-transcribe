@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(docker-compose:*)",
+      "Bash(.venvScriptsactivate)",
+      "Bash(uv pip install:*)",
+      "Bash(python:*)"
+    ]
+  }
+}
