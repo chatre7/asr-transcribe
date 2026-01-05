@@ -166,6 +166,8 @@ TRANSFORMERS_OFFLINE=false
 PATHUMMA_MODEL_ID=nectec/Pathumma-whisper-th-large-v3
 CHUNK_DURATION_SEC=30
 CHUNK_OVERLAP_SEC=3
+ENABLE_PATHUMMA=true
+ENABLE_TYPHOON=true
 ```
 
 ## Project Structure

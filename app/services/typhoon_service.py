@@ -14,6 +14,7 @@ except (ImportError, AttributeError) as e:
     TYPHOON_ASR_AVAILABLE = False
     TYPHOON_IMPORT_ERROR = str(e)
 
+from app.config import settings
 from app.utils.logger import logger
 
 
@@ -28,6 +29,10 @@ class TyphoonASR:
         """
         self.model_name = model_name
         self.loaded = False
+
+        if not settings.enable_typhoon:
+            logger.info("Typhoon ASR disabled by configuration")
+            return
 
         if not TYPHOON_ASR_AVAILABLE:
             if TYPHOON_IMPORT_ERROR and "SIGKILL" in TYPHOON_IMPORT_ERROR:

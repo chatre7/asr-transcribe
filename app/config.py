@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     # Supported models
     supported_models: List[str] = ["typhoon", "pathumma"]
     default_model: str = "pathumma"
+    enable_pathumma: bool = True
+    enable_typhoon: bool = True
 
     # API Configuration
     api_host: str = "0.0.0.0"
@@ -48,6 +50,13 @@ class Settings(BaseSettings):
     @model_validator(mode="after")
     def _apply_max_file_size(self):
         self.max_file_size = int(self.max_file_size_mb) * 1024 * 1024
+        enabled = []
+        if self.enable_pathumma:
+            enabled.append("pathumma")
+        if self.enable_typhoon:
+            enabled.append("typhoon")
+        if enabled:
+            self.supported_models = enabled
         return self
 
 

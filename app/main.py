@@ -53,8 +53,12 @@ async def startup_event():
     logger.info("Starting ASR Transcription API")
     logger.info(f"Supported models: {settings.supported_models}")
     logger.info(f"Default model: {settings.default_model}")
+    logger.info(f"Enable Pathumma: {settings.enable_pathumma}")
+    logger.info(f"Enable Typhoon: {settings.enable_typhoon}")
     logger.info(f"Temp path: {settings.temp_path}")
     logger.info(f"Max file size: {settings.max_file_size / (1024*1024)}MB")
+    logger.info(f"Chunk duration (sec): {settings.chunk_duration_sec}")
+    logger.info(f"Chunk overlap (sec): {settings.chunk_overlap_sec}")
     logger.info(f"HF_HUB_OFFLINE: {os.environ['HF_HUB_OFFLINE']}")
     logger.info(f"TRANSFORMERS_OFFLINE: {os.environ['TRANSFORMERS_OFFLINE']}")
 

@@ -16,6 +16,9 @@ services:
       - TEMP_PATH=/app/temp
       - LOG_LEVEL=INFO
       - HF_HOME=/root/.cache/huggingface
+      - PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+      - ENABLE_PATHUMMA=true
+      - ENABLE_TYPHOON=true
     deploy:
       resources:
         reservations:
