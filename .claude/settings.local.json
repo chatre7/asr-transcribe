@@ -7,7 +7,9 @@
       "Bash(docker-compose:*)",
       "Bash(.venvScriptsactivate)",
       "Bash(uv pip install:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(ssh:*)",
+      "Bash(sshpass:*)"
     ]
   }
 }

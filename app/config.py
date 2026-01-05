@@ -37,6 +37,10 @@ class Settings(BaseSettings):
     # Audio processing
     sample_rate: int = 16000
 
+    # Chunking (seconds)
+    chunk_duration_sec: float = 30.0
+    chunk_overlap_sec: float = 3.0
+
     class Config:
         env_file = ".env"
         case_sensitive = False

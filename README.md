@@ -133,6 +133,16 @@ Response Format (ตาม example_response.json):
 - **Left Channel** = CALLER
 - **Right Channel** = AGENT
 
+### Chunking (optional)
+
+กำหนดช่วงเวลา segment แบบคงที่ด้วย overlap:
+```bash
+CHUNK_DURATION_SEC=30
+CHUNK_OVERLAP_SEC=3
+```
+
+ระบบจะตัดเป็นช่วง 30 วินาทีและเหลื่อม 3 วินาที โดยหลีกเลี่ยงคำซ้ำในช่วง overlap
+
 ## API Documentation
 
 เมื่อ API ทำงาน สามารถเข้าถึง interactive API docs ที่:
@@ -154,6 +164,8 @@ HF_LOCAL_FILES_ONLY=false
 HF_HUB_OFFLINE=false
 TRANSFORMERS_OFFLINE=false
 PATHUMMA_MODEL_ID=nectec/Pathumma-whisper-th-large-v3
+CHUNK_DURATION_SEC=30
+CHUNK_OVERLAP_SEC=3
 ```
 
 ## Project Structure

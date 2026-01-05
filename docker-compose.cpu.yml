@@ -1,13 +1,11 @@
-version: '3.8'
-
 services:
   asr-api-cpu:
     build:
       context: .
-      dockerfile: Dockerfile.cpu
+      dockerfile: Dockerfile.gpu
     container_name: asr-transcribe-cpu
     ports:
-      - "8000:8000"
+      - "8076:8000"
     volumes:
       - ~/.cache/huggingface:/root/.cache/huggingface
       - ./temp:/app/temp
@@ -16,4 +14,12 @@ services:
       - TEMP_PATH=/app/temp
       - LOG_LEVEL=INFO
       - HF_HOME=/root/.cache/huggingface
+      - CUDA_VISIBLE_DEVICES=0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['0']
+              capabilities: [gpu]
     restart: unless-stopped

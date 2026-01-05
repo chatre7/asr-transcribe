@@ -70,7 +70,7 @@ class TyphoonASR:
             logger.info(f"Transcribing audio with Typhoon ASR: {audio_path}")
 
             # Use typhoon-asr package with timestamps
-            device = "cuda" if torch.cuda.is_available() else "cpu"
+            device = "cuda:1" if torch.cuda.device_count() > 1 else ("cuda" if torch.cuda.is_available() else "cpu")
             result = typhoon_transcribe(
                 audio_path,
                 with_timestamps=False,
